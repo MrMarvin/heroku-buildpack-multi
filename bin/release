@@ -1,12 +1,3 @@
 #!/usr/bin/env bash
-# bin/release <build-dir>
 
-cat << EOF
----
-addons:
-
-config_vars:
-  RACK_ENV:production
-default_process_types:
-  web:   bundle exec rackup config.ru -p $PORT -E production
-EOF
+cat $1/last_pack_release.out

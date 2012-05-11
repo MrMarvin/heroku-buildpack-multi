@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+set -e
+
+function indent() {
+  c='s/^/       /'
+  case $(uname) in
+    Darwin) sed -l "$c";;
+    *)      sed -u "$c";;
+  esac
+}
+
 for BUILDPACK in $(cat $1/.buildpacks); do
   dir=$(mktemp -t buildpackXXXXX)
   rm -rf $dir
@@ -19,17 +29,24 @@ for BUILDPACK in $(cat $1/.buildpacks); do
       git checkout $branch >/dev/null 2>&1
     fi
 
-    chmod +x $dir/bin/{detect,compile,release}
+    chmod +x ./bin/{detect,compile,release}
 
-    framework=$($dir/bin/detect $1)
+    framework=$(./bin/detect $1)
 
     if [ $? == 0 ]; then
       echo "=====> Detected Framework: $framework"
-      $dir/bin/compile $1 $2
+      ./bin/compile $1 $2
 
       if [ $? != 0 ]; then
+        echo "Failed to compile: $framework" | indent
         exit 1
       fi
+
+      ./bin/release $1 > $1/last_pack_release.out
+    else
+      echo "!!!!!! Failed to Detect Framework: $framework"
     fi
   fi
 done
+
+echo "Using release configuration from last framework $framework:" | indent
