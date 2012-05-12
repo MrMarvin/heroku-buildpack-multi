@@ -1,3 +1,11 @@
 #!/usr/bin/env bash
 
-cat $1/last_pack_release.out
+if [ -f $1/.release ]; then
+  cat $1/.release
+else
+  # it not specified otherwise, use the output
+  # of the last sub-pack
+  cat $1/last_pack_release.out 
+fi
+
+
